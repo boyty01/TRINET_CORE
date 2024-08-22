@@ -6,19 +6,60 @@ namespace TRINET_CORE.Routes
     {
         public static WebApplication MountDeviceRoutes(WebApplication app)
         {
-            app.MapGet("/devices/{id}", async (TrinetDatabase db, Guid id) =>
+
+            /**
+             * Create a new device.
+             */
+            app.MapPost("/devices", async (TrinetDatabase db, Device device) =>
             {
+                try
+                {
+                    db.Devices.Add(device);
+                    await db.SaveChangesAsync();
+                    return Results.Created($"/devices/{device.Id}", device);
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(ex);
+                }
 
             });
-           
-           app.MapGet("/devices/", () => DeviceDB.GetDevices());
-           app.MapPost("devices/", (Device device) => LocationDB.CreateDevice(device));
-            //     app.MapPut("/locations", (Location location) => LocationDB.UpdateLocation(location));
-            //      app.MapDelete("/locations/{id}", (Guid id) => LocationDB.RemoveLocation(id));
-            //     app.MapGet("/locations/{loc_id}/rooms/{room_id}", (Guid loc_id, Guid room_id) => RoomDB.GetRoomAtLocation(loc_id, room_id));
-            //     app.MapGet("/locations/{loc_id}/rooms", (Guid loc_id) => RoomDB.GetRoomsAtLocation(loc_id));
+
+
+            /**
+             * Update existing device record.
+             */
+            app.MapPut("/devices/{device_id}", async (TrinetDatabase db, Device device, Guid device_id) =>
+            {
+                var ExistingDevice = await db.Devices.FindAsync(device_id);
+                if (ExistingDevice == null) return Results.NotFound();
+
+                ExistingDevice.Name = device.Name;
+                ExistingDevice.NetworkAddress = device.NetworkAddress;
+                ExistingDevice.RoomId = device.RoomId;
+                await db.SaveChangesAsync();
+                return Results.Ok();
+            });
+
+
+            /**
+             * Delete the device with the specified id.
+             */
+            app.MapDelete("/devices/{device_id}", async (TrinetDatabase db, Guid device_id) => 
+            {
+                var device = await db.Devices.FindAsync(device_id);
+                if (device == null) return Results.NotFound();
+
+                db.Devices.Remove(device);
+                await db.SaveChangesAsync();
+                return Results.Ok();
+            });
+
 
             return app;
+    
+
+
         }
     }
 }

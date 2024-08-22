@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Reflection.Emit;
 
 
 namespace TRINET_CORE.Database
@@ -44,7 +42,7 @@ namespace TRINET_CORE.Database
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
-        public Guid LocationId { get; set;}
+        public Guid LocationId { get; set; }
 
         public ICollection<Device> Devices { get; } = new List<Device>();
 
@@ -58,9 +56,8 @@ namespace TRINET_CORE.Database
         public string? NetworkAddress { get; set; }
         public ETrinetDeviceType DeviceType { get; set; } = ETrinetDeviceType.UNDEFINED;
         public ETrinetDeviceManufacturer DeviceManufacturer { get; set; } = ETrinetDeviceManufacturer.NONE;
-        
+
         public Guid RoomId { get; set; }
-        public Room Room { get; set; } = null!;
     }
 
     public class TrinetDatabase : DbContext

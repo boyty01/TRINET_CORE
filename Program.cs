@@ -29,5 +29,5 @@ if (app.Environment.IsDevelopment())
 
 LocationRoute.MountLocationRoutes(app);
 RoomRoute.MountRoomRoutes(app);
-
+DeviceRoute.MountDeviceRoutes(app);
 app.Run();
