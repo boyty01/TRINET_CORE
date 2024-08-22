@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34714.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TRINET_CORE", "TRINET_CORE.csproj", "{0A624E9D-A749-4E7B-8861-46050D4C8F0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A624E9D-A749-4E7B-8861-46050D4C8F0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A624E9D-A749-4E7B-8861-46050D4C8F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A624E9D-A749-4E7B-8861-46050D4C8F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A624E9D-A749-4E7B-8861-46050D4C8F0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AD22CBC8-0080-4953-9CE2-7346CAB3BBC3}
+	EndGlobalSection
+EndGlobal
