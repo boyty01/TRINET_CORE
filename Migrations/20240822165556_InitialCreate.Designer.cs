@@ -11,7 +11,7 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    [Migration("20240821132337_InitialCreate")]
+    [Migration("20240822165556_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,6 +31,9 @@ namespace TRINET_CORE.Migrations
 
                     b.Property<int>("DeviceType")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("InternalName")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
@@ -83,24 +86,20 @@ namespace TRINET_CORE.Migrations
 
             modelBuilder.Entity("TRINET_CORE.Database.Device", b =>
                 {
-                    b.HasOne("TRINET_CORE.Database.Room", "Room")
+                    b.HasOne("TRINET_CORE.Database.Room", null)
                         .WithMany("Devices")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("TRINET_CORE.Database.Room", b =>
                 {
-                    b.HasOne("TRINET_CORE.Database.Location", "Location")
+                    b.HasOne("TRINET_CORE.Database.Location", null)
                         .WithMany("Rooms")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("TRINET_CORE.Database.Location", b =>

@@ -53,6 +53,8 @@ namespace TRINET_CORE.Database
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
+
+        public string? InternalName { get; set; }
         public string? NetworkAddress { get; set; }
         public ETrinetDeviceType DeviceType { get; set; } = ETrinetDeviceType.UNDEFINED;
         public ETrinetDeviceManufacturer DeviceManufacturer { get; set; } = ETrinetDeviceManufacturer.NONE;

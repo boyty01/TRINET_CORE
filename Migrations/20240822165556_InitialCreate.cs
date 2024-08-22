@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -47,6 +48,7 @@ namespace TRINET_CORE.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
+                    InternalName = table.Column<string>(type: "TEXT", nullable: true),
                     NetworkAddress = table.Column<string>(type: "TEXT", nullable: true),
                     DeviceType = table.Column<int>(type: "INTEGER", nullable: false),
                     DeviceManufacturer = table.Column<int>(type: "INTEGER", nullable: false),
