@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace TRINET_CORE.Database
 {
@@ -25,6 +25,15 @@ namespace TRINET_CORE.Database
         LG,
         WIZ,
         NANOLEAF
+    }
+
+    public enum EUserAccessLevel
+    {
+        NONE,
+        USER,
+        CPANEL,
+        BOT,
+        ADMIN
     }
 
 
@@ -65,9 +74,14 @@ namespace TRINET_CORE.Database
 
     public class User
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    
+        public Guid Id { get; set; }
+        public string Username { get; set; } = null!;
+        public string Password { get; set; } = null!;
+
+        public EUserAccessLevel UserAccessLevel { get; set; } = EUserAccessLevel.NONE;
+
+        public bool PasswordResetRequired { get; set; } = false;
+
     }
 
     public class TrinetDatabase : DbContext
@@ -83,13 +97,39 @@ namespace TRINET_CORE.Database
                 .HasForeignKey(e => e.LocationId)
                 .HasPrincipalKey(e => e.Id)
                 .IsRequired();
+
+            var hasher = new PasswordHasher<User>();
+
+
+            modelBuilder.Entity<User>()
+                .HasIndex(e => e.Username).IsUnique();
+
+
+            // setup default admin
+            modelBuilder.Entity<User>()
+                .HasData(
+                new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = "Admin",
+                    Password = hasher.HashPassword(null, "%Administrator%"),
+                    UserAccessLevel = EUserAccessLevel.ADMIN,
+                    PasswordResetRequired = true
+                });
+
+
+
+
         }
+
 
         public DbSet<Location> Locations { get; set; } = null!;
 
         public DbSet<Room> Rooms { get; set; } = null!;
 
         public DbSet<Device> Devices { get; set; } = null!;
+
+        public DbSet<User> Users { get; set; } = null!;
     }
 
 }

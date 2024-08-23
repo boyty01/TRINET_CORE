@@ -5,9 +5,9 @@ namespace TRINET_CORE
 {
     public static class AuthConfig
     {
-      
 
-       public static void SetJwtBearer(WebApplicationBuilder builder)
+
+        public static void SetJwtBearer(WebApplicationBuilder builder)
         {
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer(options =>

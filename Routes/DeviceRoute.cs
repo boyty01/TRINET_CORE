@@ -45,7 +45,7 @@ namespace TRINET_CORE.Routes
             /**
              * Delete the device with the specified id.
              */
-            app.MapDelete("/devices/{device_id}", async (TrinetDatabase db, Guid device_id) => 
+            app.MapDelete("/devices/{device_id}", async (TrinetDatabase db, Guid device_id) =>
             {
                 var device = await db.Devices.FindAsync(device_id);
                 if (device == null) return Results.NotFound();
@@ -57,7 +57,7 @@ namespace TRINET_CORE.Routes
 
 
             return app;
-    
+
 
 
         }
