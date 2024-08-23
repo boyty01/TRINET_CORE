@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using TRINET_CORE.Database;
 
 namespace TRINET_CORE.Routes
@@ -15,7 +13,7 @@ namespace TRINET_CORE.Routes
 
         private static ConfigurationManager _configuration = new();
 
- 
+
 
         private static string GenerateRefreshToken()
         {
@@ -59,7 +57,7 @@ namespace TRINET_CORE.Routes
                     {
                         var refreshToken = GenerateRefreshToken();
                         record.RefreshToken = refreshToken;
-                        record.RefreshTokenExpiry = DateTime.UtcNow.AddHours(1);
+                        record.RefreshTokenExpiry = DateTime.UtcNow.AddMinutes(AuthConfig.TokenExpirationMinutes);
 
                         db.Users.Update(record);
                         await db.SaveChangesAsync();
@@ -88,13 +86,20 @@ namespace TRINET_CORE.Routes
 
                 if (principal?.Identity?.Name is null)
                 {
+                    Console.WriteLine("No Identity Found");
                     return Results.Unauthorized();
                 }
 
                 var principalName = principal.Identity.Name;
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Username == principalName);
 
-                if (user is null || user.RefreshToken != refreshAuth.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
+                if(user is null) Console.WriteLine("No User record");
+
+                if (user is not null && user.RefreshToken != refreshAuth.RefreshToken) Console.WriteLine("Refresh token is invalid");
+
+                if (user is not null && user.RefreshTokenExpiry > DateTime.UtcNow) Console.WriteLine("Token hasn't expired");
+
+                if (user is null || user.RefreshToken != refreshAuth.RefreshToken || user.RefreshTokenExpiry > DateTime.UtcNow)
                 {
                     return Results.Unauthorized();
                 }

@@ -10,9 +10,7 @@ namespace TRINET_CORE
     {
 
         private static ConfigurationManager _configuration = new();
-
-        private static TokenValidationParameters BaseValidationParameters = new();
-
+        public static int TokenExpirationMinutes { get; } = 30;
         public static void Init(WebApplicationBuilder builder)
         {
             _configuration = builder.Configuration;
@@ -24,24 +22,26 @@ namespace TRINET_CORE
             });
         }
 
+
         public static TokenValidationParameters GetBaseTokenValidationParameters()
         {
             return new TokenValidationParameters()
             {
                 ValidIssuer = _configuration["Jwt:Issuer"],
                 ValidAudience = _configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "0x00")),
                 ClockSkew = new TimeSpan(0, 0, 5)
             };
         }
+
 
         public static TokenValidationParameters GetRefreshTokenValidationParameters()
         {
             return new TokenValidationParameters
             {
-                ValidIssuer = _configuration["JWT:ValidIssuer"],
-                ValidAudience = _configuration["JWT:ValidAudience"],
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidAudience = _configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "0x00")),
                 ValidateLifetime = false
             };
         }
@@ -56,14 +56,13 @@ namespace TRINET_CORE
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                            new Claim("Id", Guid.NewGuid().ToString()),
-                            new Claim(JwtRegisteredClaimNames.Sub, record.Username),
-                            new Claim(JwtRegisteredClaimNames.Email, record.Username),
-                            new Claim(JwtRegisteredClaimNames.Jti,
-                            Guid.NewGuid().ToString()),
-                            new Claim(ClaimTypes.Role, record.UserAccessLevel.ToString())
-                        }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                    new Claim("Id", Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Name, record.Username),
+                    new Claim(JwtRegisteredClaimNames.Email, record.Username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, record.UserAccessLevel.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(TokenExpirationMinutes),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials
@@ -77,4 +76,5 @@ namespace TRINET_CORE
 
 
     }
+
 }

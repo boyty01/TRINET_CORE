@@ -91,7 +91,7 @@ namespace TRINET_CORE.Database
     public class LoginUser
     {
         public required string Username { get; set; }
-        public required string Password { get; set; }   
+        public required string Password { get; set; }
     }
 
     public class LoginResponse
@@ -138,7 +138,7 @@ namespace TRINET_CORE.Database
                 {
                     Id = Guid.NewGuid(),
                     Username = "Admin",
-                    Password = hasher.HashPassword(null, "%Administrator%"),
+                    Password = hasher.HashPassword(new User(), "%Administrator%"),
                     UserAccessLevel = EUserAccessLevel.ADMIN,
                     PasswordResetRequired = true
                 });
