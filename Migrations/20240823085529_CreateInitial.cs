@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace TRINET_CORE.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,6 +21,21 @@ namespace TRINET_CORE.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Locations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Username = table.Column<string>(type: "TEXT", nullable: false),
+                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    UserAccessLevel = table.Column<int>(type: "INTEGER", nullable: false),
+                    PasswordResetRequired = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,6 +80,11 @@ namespace TRINET_CORE.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Password", "PasswordResetRequired", "UserAccessLevel", "Username" },
+                values: new object[] { new Guid("8d7f6f64-edce-44d9-a237-008562020e06"), "AQAAAAIAAYagAAAAEJPGRqLwNg7bZMdbJ5bSGUnME+QYWP6V3x/j5e1p7AgI7UhJCHft05ZI+7CLqVxPAA==", true, 4, "Admin" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Devices_RoomId",
                 table: "Devices",
@@ -73,6 +94,12 @@ namespace TRINET_CORE.Migrations
                 name: "IX_Rooms_LocationId",
                 table: "Rooms",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -80,6 +107,9 @@ namespace TRINET_CORE.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Devices");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Rooms");

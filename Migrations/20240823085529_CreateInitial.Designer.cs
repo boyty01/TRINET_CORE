@@ -11,8 +11,8 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    [Migration("20240822165556_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240823085529_CreateInitial")]
+    partial class CreateInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,6 +82,44 @@ namespace TRINET_CORE.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("TRINET_CORE.Database.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PasswordResetRequired")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserAccessLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8d7f6f64-edce-44d9-a237-008562020e06"),
+                            Password = "AQAAAAIAAYagAAAAEJPGRqLwNg7bZMdbJ5bSGUnME+QYWP6V3x/j5e1p7AgI7UhJCHft05ZI+7CLqVxPAA==",
+                            PasswordResetRequired = true,
+                            UserAccessLevel = 4,
+                            Username = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("TRINET_CORE.Database.Device", b =>
