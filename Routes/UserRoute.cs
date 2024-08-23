@@ -49,7 +49,6 @@ namespace TRINET_CORE.Routes
                     var record = await db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
                     if (record == null) return Results.Unauthorized();
 
-
                     PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
                     PasswordVerificationResult result = passwordHasher.VerifyHashedPassword(record, record.Password, user.Password);
 
@@ -93,12 +92,6 @@ namespace TRINET_CORE.Routes
                 var principalName = principal.Identity.Name;
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Username == principalName);
 
-                if(user is null) Console.WriteLine("No User record");
-
-                if (user is not null && user.RefreshToken != refreshAuth.RefreshToken) Console.WriteLine("Refresh token is invalid");
-
-                if (user is not null && user.RefreshTokenExpiry > DateTime.UtcNow) Console.WriteLine("Token hasn't expired");
-
                 if (user is null || user.RefreshToken != refreshAuth.RefreshToken || user.RefreshTokenExpiry > DateTime.UtcNow)
                 {
                     return Results.Unauthorized();
@@ -129,8 +122,6 @@ namespace TRINET_CORE.Routes
                 NewUser.Password = Hash;
                 try
                 {
-
-
                     await db.Users.AddAsync(NewUser);
                     await db.SaveChangesAsync();
                     return Results.Created();
