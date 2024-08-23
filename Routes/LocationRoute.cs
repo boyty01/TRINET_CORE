@@ -16,7 +16,7 @@ namespace TRINET_CORE.Routes
             app.MapGet("/locations", async (TrinetDatabase db) =>
             {
                 return await db.Locations.ToListAsync();
-            });
+            }).RequireAuthorization();
 
 
             /**
@@ -27,7 +27,7 @@ namespace TRINET_CORE.Routes
                 await db.Locations.AddAsync(location);
                 await db.SaveChangesAsync();
                 return Results.Created($"/locations/{location.Id}", location);
-            });
+            }).RequireAuthorization();
 
 
             /** 
@@ -36,7 +36,7 @@ namespace TRINET_CORE.Routes
             app.MapGet("/locations/{loc_id}", async (TrinetDatabase db, Guid loc_id) =>
             {
                 return await db.Locations.FirstAsync(y => y.Id == loc_id);
-            });
+            }).RequireAuthorization();
 
 
             /**
@@ -49,7 +49,7 @@ namespace TRINET_CORE.Routes
                 location.Name = updatelocation.Name;
                 await db.SaveChangesAsync();
                 return Results.NoContent();
-            });
+            }).RequireAuthorization();
 
 
             /**
@@ -62,7 +62,7 @@ namespace TRINET_CORE.Routes
                 db.Locations.Remove(location);
                 await db.SaveChangesAsync();
                 return Results.Ok();
-            });
+            }).RequireAuthorization();
 
 
             /**
@@ -71,7 +71,7 @@ namespace TRINET_CORE.Routes
             app.MapGet("/locations/{loc_id}/rooms", async (TrinetDatabase db, Guid loc_id) =>
             {
                 return await db.Locations.Include(u => u.Rooms).Where(l => l.Id == loc_id).ToListAsync();
-            });
+            }).RequireAuthorization();
 
 
 
@@ -80,8 +80,8 @@ namespace TRINET_CORE.Routes
              */
             app.MapGet("/locations/{loc_id}/rooms/{room_id}", async (TrinetDatabase db, Guid loc_id, Guid room_id) =>
             {
-                return await db.Rooms.Include(u => u.Devices).FirstAsync(u => u.LocationId == loc_id && u.Id == room_id);
-            });
+                return await db.Rooms.FirstAsync(u => u.LocationId == loc_id && u.Id == room_id);
+            }).RequireAuthorization();
 
 
 
@@ -90,8 +90,8 @@ namespace TRINET_CORE.Routes
              */
             app.MapGet("locations/{loc_id}/rooms/{room_id}/devices", async (TrinetDatabase db, Guid loc_id, Guid room_id) =>
             {
-                return await db.Rooms.Include(u => u.Devices).FirstOrDefaultAsync(u => u.Id == loc_id && u.Id == room_id);
-            });
+                return await db.Rooms.Include(u => u.Devices).FirstOrDefaultAsync(u => u.LocationId == loc_id && u.Id == room_id);
+            }).RequireAuthorization();
 
 
 
