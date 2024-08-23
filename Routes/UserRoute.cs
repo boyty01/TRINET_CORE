@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using TRINET_CORE.Database;
 
@@ -12,52 +13,64 @@ namespace TRINET_CORE.Routes
     public static class UserRoute
     {
 
+        private static ConfigurationManager _configuration = new();
+
+ 
+
+        private static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+
+            using var generator = RandomNumberGenerator.Create();
+
+            generator.GetBytes(randomNumber);
+
+            return Convert.ToBase64String(randomNumber);
+        }
+
+
+        private static ClaimsPrincipal? GetPrinicpalFromExpiredToken(string? token)
+        {
+            var validation = AuthConfig.GetRefreshTokenValidationParameters();
+
+            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
+        }
 
         public static WebApplication MountUserRoutes(WebApplication app, WebApplicationBuilder builder)
         {
 
 
-            app.MapPost("/user/login", async (TrinetDatabase db, User user) =>
+            /**
+             * Login to an existing account. Generates a JWT Token
+             */
+            app.MapPost("/user/login", async (TrinetDatabase db, LoginUser user) =>
             {
                 try
                 {
+                    var All = await db.Users.ToListAsync();
                     var record = await db.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
-                    Console.WriteLine(record);
                     if (record == null) return Results.Unauthorized();
+
 
                     PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
                     PasswordVerificationResult result = passwordHasher.VerifyHashedPassword(record, record.Password, user.Password);
 
                     if (result == PasswordVerificationResult.Success)
                     {
-                        var issuer = builder.Configuration["Jwt:Issuer"];
-                        var audience = builder.Configuration["Jwt:Audience"];
-                        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"] ?? "0x00");
-                        var tokenDescriptor = new SecurityTokenDescriptor
+                        var refreshToken = GenerateRefreshToken();
+                        record.RefreshToken = refreshToken;
+                        record.RefreshTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+                        db.Users.Update(record);
+                        await db.SaveChangesAsync();
+
+                        var token = AuthConfig.CreateJwtToken(record);
+                        return Results.Ok(new LoginResponse
                         {
-                            Subject = new ClaimsIdentity(new[]
-                            {
-                            new Claim("Id", Guid.NewGuid().ToString()),
-                            new Claim(JwtRegisteredClaimNames.Sub, record.Username),
-                            new Claim(JwtRegisteredClaimNames.Email, record.Username),
-                            new Claim(JwtRegisteredClaimNames.Jti,
-                            Guid.NewGuid().ToString()),
-                            new Claim(ClaimTypes.Role, record.UserAccessLevel.ToString())
-                        }),
-                            Expires = DateTime.UtcNow.AddMinutes(5),
-                            Issuer = issuer,
-                            Audience = audience,
-                            SigningCredentials = new SigningCredentials
-                            (new SymmetricSecurityKey(key),
-                            SecurityAlgorithms.HmacSha512Signature),
-
-                        };
-                        var tokenHandler = new JwtSecurityTokenHandler();
-                        var token = tokenHandler.CreateToken(tokenDescriptor);
-                        var jwtToken = tokenHandler.WriteToken(token);
-                        var stringToken = tokenHandler.WriteToken(token);
-                        return Results.Ok("{\"token\":\"" + stringToken + "\"}");
-
+                            JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
+                            Expiration = token.ValidTo,
+                            RefreshToken = refreshToken
+                        });
                     }
 
                     return Results.Unauthorized();
@@ -69,19 +82,53 @@ namespace TRINET_CORE.Routes
             });
 
 
-
-            app.MapPost("/user/register", async (TrinetDatabase db, User user) =>
+            app.MapPost("/user/refresh_token", async (TrinetDatabase db, RefreshAuth refreshAuth) =>
             {
+                var principal = GetPrinicpalFromExpiredToken(refreshAuth.AccessToken);
+
+                if (principal?.Identity?.Name is null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var principalName = principal.Identity.Name;
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Username == principalName);
+
+                if (user is null || user.RefreshToken != refreshAuth.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var token = AuthConfig.CreateJwtToken(user);
+
+                return Results.Ok(new LoginResponse
+                {
+                    JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
+                    Expiration = token.ValidTo,
+                    RefreshToken = refreshAuth.RefreshToken
+                });
+
+            });
+
+
+            /**
+             * Register a new user. Admin Only
+             */
+            app.MapPost("/user/register", async (TrinetDatabase db, LoginUser user) =>
+            {
+                User NewUser = new();
                 PasswordHasher<User> passwordHasher = new PasswordHasher<User>();
-                string Hash = passwordHasher.HashPassword(user, user.Password);
-                user.Password = Hash;
+                string Hash = passwordHasher.HashPassword(NewUser, user.Password);
+                NewUser.Id = Guid.NewGuid();
+                NewUser.Username = user.Username;
+                NewUser.Password = Hash;
                 try
                 {
-                    user.Id = Guid.NewGuid();
-                    await db.Users.AddAsync(user);
+
+
+                    await db.Users.AddAsync(NewUser);
                     await db.SaveChangesAsync();
-                    User SafeUser = new() { Id = user.Id, Username = user.Username, Password = "", UserAccessLevel = user.UserAccessLevel };
-                    return Results.Created($"/user/{SafeUser.Id}",SafeUser);
+                    return Results.Created();
                 }
                 catch (Exception)
                 {
@@ -91,9 +138,27 @@ namespace TRINET_CORE.Routes
             }).RequireAuthorization(policy => policy.RequireRole(EUserAccessLevel.ADMIN.ToString()));
 
 
-
+            /**
+             * Update user details. Admin only
+             */
             app.MapPut("/user/{username}", async (TrinetDatabase db, User user) =>
             {
+                try
+                {
+                    var record = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
+                    if (record == null) return Results.NotFound();
+
+                    record.Username = user.Username;
+                    record.Password = user.Password;
+                    record.UserAccessLevel = user.UserAccessLevel;
+                    db.Users.Update(record);
+                    await db.SaveChangesAsync();
+                    return Results.Ok();
+                }
+                catch (Exception e)
+                {
+                    return Results.Problem(e.Message);
+                }
 
             }).RequireAuthorization(new AuthorizeAttribute() { Roles = EUserAccessLevel.ADMIN.ToString() });
 

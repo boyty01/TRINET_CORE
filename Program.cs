@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Authentication
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-builder.Services.AddAuthentication().AddJwtBearer();
+TRINET_CORE.AuthConfig.Init(builder);
+
 builder.Services.AddAuthorization();
 // Make sure the pw hash iteration is higher than the weirdly low default.
 builder.Services.Configure<PasswordHasherOptions>(opt => opt.IterationCount = 600_000);

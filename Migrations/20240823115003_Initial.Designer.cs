@@ -11,8 +11,8 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    [Migration("20240823085529_CreateInitial")]
-    partial class CreateInitial
+    [Migration("20240823115003_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,6 +97,12 @@ namespace TRINET_CORE.Migrations
                     b.Property<bool>("PasswordResetRequired")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RefreshTokenExpiry")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("UserAccessLevel")
                         .HasColumnType("INTEGER");
 
@@ -114,9 +120,10 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8d7f6f64-edce-44d9-a237-008562020e06"),
-                            Password = "AQAAAAIAAYagAAAAEJPGRqLwNg7bZMdbJ5bSGUnME+QYWP6V3x/j5e1p7AgI7UhJCHft05ZI+7CLqVxPAA==",
+                            Id = new Guid("6109c372-d93f-4e03-820e-ad27e29d6668"),
+                            Password = "AQAAAAIAAYagAAAAEGITIjBsb+JG0mKAJVxM7t3NuxBmR3wMOzLZDJZR/YZGUrUCRAXEUCZBvgjtwCGBWA==",
                             PasswordResetRequired = true,
+                            RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserAccessLevel = 4,
                             Username = "Admin"
                         });

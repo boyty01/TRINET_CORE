@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TRINET_CORE.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateInitial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,7 +31,9 @@ namespace TRINET_CORE.Migrations
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     Password = table.Column<string>(type: "TEXT", nullable: false),
                     UserAccessLevel = table.Column<int>(type: "INTEGER", nullable: false),
-                    PasswordResetRequired = table.Column<bool>(type: "INTEGER", nullable: false)
+                    PasswordResetRequired = table.Column<bool>(type: "INTEGER", nullable: false),
+                    RefreshToken = table.Column<string>(type: "TEXT", nullable: true),
+                    RefreshTokenExpiry = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,8 +84,8 @@ namespace TRINET_CORE.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Password", "PasswordResetRequired", "UserAccessLevel", "Username" },
-                values: new object[] { new Guid("8d7f6f64-edce-44d9-a237-008562020e06"), "AQAAAAIAAYagAAAAEJPGRqLwNg7bZMdbJ5bSGUnME+QYWP6V3x/j5e1p7AgI7UhJCHft05ZI+7CLqVxPAA==", true, 4, "Admin" });
+                columns: new[] { "Id", "Password", "PasswordResetRequired", "RefreshToken", "RefreshTokenExpiry", "UserAccessLevel", "Username" },
+                values: new object[] { new Guid("6109c372-d93f-4e03-820e-ad27e29d6668"), "AQAAAAIAAYagAAAAEGITIjBsb+JG0mKAJVxM7t3NuxBmR3wMOzLZDJZR/YZGUrUCRAXEUCZBvgjtwCGBWA==", true, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Devices_RoomId",

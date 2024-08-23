@@ -82,7 +82,33 @@ namespace TRINET_CORE.Database
 
         public bool PasswordResetRequired { get; set; } = false;
 
+        public string? RefreshToken { get; set; }
+
+        public DateTime RefreshTokenExpiry { get; set; }
+
     }
+
+    public class LoginUser
+    {
+        public required string Username { get; set; }
+        public required string Password { get; set; }   
+    }
+
+    public class LoginResponse
+    {
+        public required string JwtToken { get; set; }
+        public DateTime Expiration { get; set; }
+        public required string RefreshToken { get; set; }
+
+    }
+
+
+    public class RefreshAuth
+    {
+        public required string AccessToken { get; set; }
+        public required string RefreshToken { get; set; }
+    }
+
 
     public class TrinetDatabase : DbContext
     {
@@ -116,9 +142,6 @@ namespace TRINET_CORE.Database
                     UserAccessLevel = EUserAccessLevel.ADMIN,
                     PasswordResetRequired = true
                 });
-
-
-
 
         }
 
