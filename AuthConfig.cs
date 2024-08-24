@@ -11,6 +11,8 @@ namespace TRINET_CORE
 
         private static ConfigurationManager _configuration = new();
         public static int TokenExpirationMinutes { get; } = 30;
+
+
         public static void Init(WebApplicationBuilder builder)
         {
             _configuration = builder.Configuration;
@@ -25,7 +27,7 @@ namespace TRINET_CORE
 
         public static TokenValidationParameters GetBaseTokenValidationParameters()
         {
-            return new TokenValidationParameters()
+            return new TokenValidationParameters
             {
                 ValidIssuer = _configuration["Jwt:Issuer"],
                 ValidAudience = _configuration["Jwt:Audience"],

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using TRINET_CORE.Database;
+using TRINET_CORE.Modules.Wiz;
 using TRINET_CORE.Routes;
 
 
@@ -22,7 +23,7 @@ builder.Services.Configure<PasswordHasherOptions>(opt => opt.IterationCount = 60
 var connectionString = builder.Configuration.GetConnectionString("TrinetDatabase") ?? "Data Source=TrinetDatabase.db";
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSqlite<TrinetDatabase>(connectionString);
-
+builder.Services.AddSingleton<WizModule>();
 
 // swagger
 builder.Services.AddSwaggerGen(c =>

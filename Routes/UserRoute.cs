@@ -1,19 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using TRINET_CORE.Database;
+using TRINET_CORE.Modules.Wiz;
 
 namespace TRINET_CORE.Routes
 {
     public static class UserRoute
     {
-
-        private static ConfigurationManager _configuration = new();
-
-
 
         private static string GenerateRefreshToken()
         {
@@ -41,7 +37,7 @@ namespace TRINET_CORE.Routes
             /**
              * Login to an existing account. Generates a JWT Token
              */
-            app.MapPost("/user/login", async (TrinetDatabase db, LoginUser user) =>
+            app.MapPost("/user/login", async (TrinetDatabase db, WizModule wiz, LoginUser user) =>
             {
                 try
                 {
@@ -156,7 +152,7 @@ namespace TRINET_CORE.Routes
                     return Results.Problem(e.Message);
                 }
 
-            }).RequireAuthorization(new AuthorizeAttribute() { Roles = EUserAccessLevel.ADMIN.ToString() });
+            }).RequireAuthorization(policy => policy.RequireRole(EUserAccessLevel.ADMIN.ToString()));
 
             return app;
         }
