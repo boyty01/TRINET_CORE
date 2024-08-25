@@ -8,6 +8,5 @@ namespace TRINET_CORE.Modules
         public Task<string> SendDeviceApiRequest(Device device, string request);
 
 
-        public Task<string> GetDeviceStatus(Device device);
     }
 }

@@ -78,15 +78,6 @@ namespace TRINET_CORE.Modules.Wiz
         }
 
 
-        public async Task<string> GetDeviceStatus(Device device)
-        {
-            if (device.NetworkAddress is null) throw new ArgumentNullException("Requested device status with null network address");
-
-            IPEndPoint IP = new(IPAddress.Parse(device.NetworkAddress), DefaultBulbCommsPort);
-
-            return "";
-        }
-
 
         public async Task<string> BulbRequest(Device device, string request)
         {
