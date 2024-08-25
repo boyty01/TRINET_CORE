@@ -6,17 +6,7 @@ namespace TRINET_CORE.Modules.Wiz
 
 {
 
-    public enum EBulbRequestCommand
-    {
-        STATUS,
-        POWER,
-        COLOUR,
-        COLOUR_DIM,
-        DIM
-    }
-
-
-
+  
     public class WizModule : ModuleBase, IDeviceControllerInterface
     {
         private IServiceScopeFactory ServiceScopeFactory;
