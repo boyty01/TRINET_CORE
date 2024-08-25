@@ -1,4 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using TRINET_CORE.Database;
 
@@ -12,40 +14,88 @@ namespace TRINET_CORE.Modules.Wiz
         setState
     }
 
+
+    // empty params
     public class WizBulbRequestParamsBase { }
 
-    public class WizBulbColourRequestParams : WizBulbRequestParamsBase
+
+    // set pilot params
+    public class SetPilotParams : WizBulbRequestParamsBase
     {
-        public int R { get; set; }
-        public int G { get; set; }
-        public int B { get; set; }
-        public int Dimming { get; set; }
+        public bool? State { get; set; }
+        public int? SceneId { get; set; }
+        public int? R { get; set; }
+        public int? G { get; set; }
+        public int? B { get; set; }
+        public int? C { get; set; }
+        public int? W { get; set; }
+        public int? Temp { get; set; }
+        public int? Dimming { get; set; }
     }
 
-    public class WizStateRequest : WizBulbRequestParamsBase
+
+    // set state params
+    public class SetStateParams : WizBulbRequestParamsBase
     {
         public bool State { get; set; }
     }
 
-    public class WizSetRequest
+
+    // container for request body from Trinet client
+    public class WizRequestBase
     {
-        public int Id { get; set; }
-        public string Method { get; set; }
-        public WizBulbRequestParamsBase Params { get; set; }
+        public EWizBulbRequestMethod Method { get; set; }
+        public string Request { get; set; } = null!;
+    }
+
+
+    // set pilot request 
+    public class SetPilotRequest
+    {
+        public int? Id { get; set; }
+        public string Method { get; set; } = null!;
+        public WizBulbRequestParamsBase? Params { get; set; }
 
     }
 
-    public class WizGetStatusRequest
+
+    // prepared get pilot request. 
+    public class GetPilotRequest
     {
         public string Method { get; set; } = EWizBulbRequestMethod.getPilot.ToString();
-        public WizBulbRequestParamsBase Params { get; set; }
+        public WizBulbRequestParamsBase Params { get; set; } = new WizBulbRequestParamsBase();
 
     }
 
-    public class WizStatusResponse
-    {
-        public string State { get; set; }  
 
+    // get pilot response 
+    public class GetPilotResponse
+    {
+        public string Method { get; set; }
+        public string Env { get; set; } 
+        public GetPilotResponseResult Result { get; set; }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this).ToString();
+        }
+    }
+
+
+    // get pilot response Result
+    public class GetPilotResponseResult
+    {
+        public string? Mac { get; set; }
+        public int? Rssi { get; set; }
+        public bool? State { get; set; }
+        public int? SceneId { get; set; }
+        public int? R { get; set; }
+        public int? G { get; set; }
+        public int? B { get; set; }
+        public int? C { get; set; }
+        public int? W { get; set; }
+        public int? Temp { get; set; }
+        public int? Dimming { get; set; }
     }
 
     public class WizBulb
@@ -91,38 +141,65 @@ namespace TRINET_CORE.Modules.Wiz
             return !(bulb.NetworkAddress == device.NetworkAddress);
         }
 
-        public void HandleRequest(string request)
+
+        /**
+         * Main entry
+         */
+        public async Task<string> HandleRequest(string request)
         {
+
+            var obj = JsonSerializer.Deserialize<WizRequestBase>(request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+            if (obj is null) return "{\"error\":\"Bad request. Bad Payload.\"}";
+
+            // Get state
+            if(obj.Method == EWizBulbRequestMethod.getPilot)
+            {
+                return await GetState();
+            }
+
+            // send request command. SetPilot and SetState 
+            if (obj.Method == EWizBulbRequestMethod.setPilot || obj.Method == EWizBulbRequestMethod.setState)
+            {
+                var JsonRequest = JsonSerializer.Deserialize<SetPilotRequest>(obj.Request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                if(JsonRequest is null) return "{\"error\":\"Bad request. Bad Payload. \"}";
+
+                return await SendRequest(JsonRequest);
+            }
+
+            return "{\"error\":\"Bad request. Unknown method.\"}";
 
         }
 
-        public async Task<WizStatusResponse?> GetState()
-        {
-            var command = new WizGetStatusRequest();           
-            byte[] cBytes = System.Text.Encoding.UTF8.GetBytes
-                (
-                    JsonSerializer.Serialize
-                    (
-                        command, new JsonSerializerOptions
-                        {
-                            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
-                        }
-                    )
-                );
 
-            UdpClient client = new UdpClient(NetworkAddress, Port);
-            client.Client.ReceiveTimeout = 200;
-            await client.SendAsync(cBytes);
+        /** 
+         * send a getPilot command.
+         */
+        private async Task<string> GetState()
+        {
+            // serialize
+            var command = new GetPilotRequest();  
+            var cConv = JsonSerializer.Serialize(command, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase});         
+            byte[] cBytes = System.Text.Encoding.UTF8.GetBytes(cConv);
+
+            // send request
+            UdpClient client = new UdpClient();
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse(NetworkAddress), Port);            
+            await client.SendAsync(cBytes, ep);
+
+            // get response as string
             var buffer = await client.ReceiveAsync();
-            WizStatusResponse? response = JsonSerializer.Deserialize<WizStatusResponse>(buffer.ToString()?? "");
+            var asString = System.Text.Encoding.UTF8.GetString(buffer.Buffer, 0, buffer.Buffer.Length);
             client.Close();
-            return response;
+            return asString;
         }
 
 
 
-        // Send an change RGBA command
-        public async void RequestColourWithDimming(WizStateRequest request)
+        /**
+         * Send a set state / pilot command.
+         */
+        private async Task<string> SendRequest(SetPilotRequest request)
         {
             byte[] cBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
             try
@@ -131,13 +208,15 @@ namespace TRINET_CORE.Modules.Wiz
                 client.Client.ReceiveTimeout = 200;
                 await client.SendAsync(cBytes);
                 client.Close();
-                return;
+                return "OK";
             }
             catch (Exception ex)
             {
-                // log. 
+                return "Error";
             }
         }
+
+ 
     }
 
 }

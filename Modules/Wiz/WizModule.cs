@@ -54,6 +54,7 @@ namespace TRINET_CORE.Modules.Wiz
                     WizBulbs.Add(new WizBulb(u.NetworkAddress ?? "", DefaultBulbCommsPort, u.Name ?? ""));
                 }
             });
+
             scope.Dispose();
         }
 
@@ -63,18 +64,17 @@ namespace TRINET_CORE.Modules.Wiz
         }
 
 
-        public TrinetModuleRequestResult SendDeviceApiRequest(Device device, string request)
+        public async Task<string> SendDeviceApiRequest(Device device, string request)
         {
+            string response;
             if (device.DeviceType == ETrinetDeviceType.LIGHT_BULB)
             {
-                return BulbRequest(device, request);
+                response = await BulbRequest(device, request);
+                return response;
             }
 
-            return new TrinetModuleRequestResult
-            {
-                Message = "Unsupported device type.",
-                Status = ERequestStatus.FAILED
-            };
+
+            return "";
         }
 
 
@@ -88,14 +88,12 @@ namespace TRINET_CORE.Modules.Wiz
         }
 
 
-        public TrinetModuleRequestResult BulbRequest(Device device, string request)
+        public async Task<string> BulbRequest(Device device, string request)
         {
+            WizBulb? TargetBulb = WizBulbs.Find(u => u == device);
+            if (TargetBulb is null) return "";
 
-            return new TrinetModuleRequestResult
-            {
-                Message = "Sent",
-                Status = ERequestStatus.SENT
-            };
+            return await TargetBulb.HandleRequest(request);
         }
 
 

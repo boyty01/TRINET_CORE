@@ -109,6 +109,12 @@ namespace TRINET_CORE.Database
         public required string RefreshToken { get; set; }
     }
 
+    public class DeviceRequest
+    {
+        public required Guid DeviceId { get; set; }
+        public string Request { get; set; } = null!;
+    }
+
 
     public class TrinetDatabase : DbContext
     {
