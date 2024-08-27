@@ -11,8 +11,8 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    [Migration("20240823115003_Initial")]
-    partial class Initial
+    [Migration("20240827110331_AddedLocation")]
+    partial class AddedLocation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,13 @@ namespace TRINET_CORE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Locations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("6ed97c3b-834e-44d1-ba46-82a34602b14a"),
+                            Name = "Default"
+                        });
                 });
 
             modelBuilder.Entity("TRINET_CORE.Database.Room", b =>
@@ -88,6 +95,9 @@ namespace TRINET_CORE.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
@@ -120,8 +130,9 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6109c372-d93f-4e03-820e-ad27e29d6668"),
-                            Password = "AQAAAAIAAYagAAAAEGITIjBsb+JG0mKAJVxM7t3NuxBmR3wMOzLZDJZR/YZGUrUCRAXEUCZBvgjtwCGBWA==",
+                            Id = new Guid("4c83c9e8-ad41-474e-baca-81006ca49aae"),
+                            LocationId = new Guid("6ed97c3b-834e-44d1-ba46-82a34602b14a"),
+                            Password = "AQAAAAIAAYagAAAAEG5VLyLJvilJYISDYKZCT7IWyHRRBRh/F3G0Dtn7YkIKbAT3fj+M/XQwTmKW4lFMng==",
                             PasswordResetRequired = true,
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserAccessLevel = 4,

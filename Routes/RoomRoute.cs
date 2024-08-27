@@ -13,9 +13,17 @@ namespace TRINET_CORE.Routes
              */
             app.MapPost("/rooms", async (TrinetDatabase db, Room room) =>
             {
-                await db.Rooms.AddAsync(room);
-                await db.SaveChangesAsync();
-                return Results.Created($"/rooms/{room.Id}", room);
+                try
+                {
+                    room.Id = Guid.NewGuid();
+                    await db.Rooms.AddAsync(room);
+                    await db.SaveChangesAsync();
+                    return Results.Created($"/rooms/{room.Id}", room);
+                }
+                catch(Exception ex)
+                {
+                    return Results.Problem();
+                }
             });
 
 

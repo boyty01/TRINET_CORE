@@ -64,7 +64,7 @@ namespace TRINET_CORE.Modules.Wiz
             }
 
 
-            return "";
+            return "{\"error\":\"Unsupported device.\"}";
         }
 
 

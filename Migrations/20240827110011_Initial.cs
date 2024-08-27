@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -82,9 +83,14 @@ namespace TRINET_CORE.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Locations",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { new Guid("4a024edc-36a8-44ba-813c-c699af63f9d2"), "Default" });
+
+            migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "Password", "PasswordResetRequired", "RefreshToken", "RefreshTokenExpiry", "UserAccessLevel", "Username" },
-                values: new object[] { new Guid("6109c372-d93f-4e03-820e-ad27e29d6668"), "AQAAAAIAAYagAAAAEGITIjBsb+JG0mKAJVxM7t3NuxBmR3wMOzLZDJZR/YZGUrUCRAXEUCZBvgjtwCGBWA==", true, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, "Admin" });
+                values: new object[] { new Guid("7342d8c3-a4cb-40aa-8d87-f95d9c421c06"), "AQAAAAIAAYagAAAAEHyQnk92+LLRzj31MKAFXWFR6fwsGY0TkmprE8m7PDGlbweylFymb9rZ0xmRc1i3IA==", true, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4, "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Devices_RoomId",

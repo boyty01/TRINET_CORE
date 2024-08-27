@@ -70,7 +70,7 @@ namespace TRINET_CORE.Routes
              */
             app.MapGet("/locations/{loc_id}/rooms", async (TrinetDatabase db, Guid loc_id) =>
             {
-                return await db.Locations.Include(u => u.Rooms).Where(l => l.Id == loc_id).ToListAsync();
+                return await db.Locations.Include(u => u.Rooms).Where(l => l.Id == loc_id).FirstOrDefaultAsync();
             }).RequireAuthorization();
 
 

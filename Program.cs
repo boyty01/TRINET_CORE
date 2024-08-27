@@ -81,3 +81,4 @@ UserRoute.MountUserRoutes(app, builder);
 app.UseAuthentication();
 app.UseAuthorization();
 app.Run();
+

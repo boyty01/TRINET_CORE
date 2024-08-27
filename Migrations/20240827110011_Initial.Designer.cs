@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TRINET_CORE.Database;
 
@@ -10,9 +11,11 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    partial class TrinetDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20240827110011_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -64,7 +67,7 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d122f9af-7af7-4e80-953d-5096d4d5ccc6"),
+                            Id = new Guid("4a024edc-36a8-44ba-813c-c699af63f9d2"),
                             Name = "Default"
                         });
                 });
@@ -73,10 +76,6 @@ namespace TRINET_CORE.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("LocationId")
@@ -96,9 +95,6 @@ namespace TRINET_CORE.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
@@ -131,9 +127,8 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6b105e10-b554-4e59-aa0a-e1aa0be3e1de"),
-                            LocationId = new Guid("d122f9af-7af7-4e80-953d-5096d4d5ccc6"),
-                            Password = "AQAAAAIAAYagAAAAEFMEaCOM/Gqro91lKAzhEYtBgGRVzN168/JPNFGjFkcblte62AA4zpBJiffzgRr9Cw==",
+                            Id = new Guid("7342d8c3-a4cb-40aa-8d87-f95d9c421c06"),
+                            Password = "AQAAAAIAAYagAAAAEHyQnk92+LLRzj31MKAFXWFR6fwsGY0TkmprE8m7PDGlbweylFymb9rZ0xmRc1i3IA==",
                             PasswordResetRequired = true,
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserAccessLevel = 4,

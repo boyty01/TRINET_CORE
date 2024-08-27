@@ -33,6 +33,11 @@ namespace TRINET_CORE.Routes
         public static WebApplication MountUserRoutes(WebApplication app, WebApplicationBuilder builder)
         {
 
+            app.MapGet("/user/validate", async () =>
+            {
+                return Results.Ok();
+            }).RequireAuthorization();
+
 
             /**
              * Login to an existing account. Generates a JWT Token
@@ -62,10 +67,12 @@ namespace TRINET_CORE.Routes
                         {
                             JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
                             Expiration = token.ValidTo,
-                            RefreshToken = refreshToken
+                            RefreshToken = refreshToken,
+                            LocationId = record.LocationId
                         });
                     }
 
+                    Console.WriteLine("Failed auth");
                     return Results.Unauthorized();
                 }
                 catch (Exception e)
@@ -99,7 +106,8 @@ namespace TRINET_CORE.Routes
                 {
                     JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
                     Expiration = token.ValidTo,
-                    RefreshToken = refreshAuth.RefreshToken
+                    RefreshToken = refreshAuth.RefreshToken,
+                    LocationId = user.LocationId
                 });
 
             });

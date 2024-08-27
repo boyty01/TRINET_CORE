@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TRINET_CORE.Database;
 
@@ -10,9 +11,11 @@ using TRINET_CORE.Database;
 namespace TRINET_CORE.Migrations
 {
     [DbContext(typeof(TrinetDatabase))]
-    partial class TrinetDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20240827180626_ImageUri")]
+    partial class ImageUri
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -64,7 +67,7 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d122f9af-7af7-4e80-953d-5096d4d5ccc6"),
+                            Id = new Guid("8cccc9cc-0663-4cfa-aa20-5a876c347260"),
                             Name = "Default"
                         });
                 });
@@ -131,9 +134,9 @@ namespace TRINET_CORE.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6b105e10-b554-4e59-aa0a-e1aa0be3e1de"),
-                            LocationId = new Guid("d122f9af-7af7-4e80-953d-5096d4d5ccc6"),
-                            Password = "AQAAAAIAAYagAAAAEFMEaCOM/Gqro91lKAzhEYtBgGRVzN168/JPNFGjFkcblte62AA4zpBJiffzgRr9Cw==",
+                            Id = new Guid("e8e18d57-4a20-47ca-9d1e-e8b949aee18e"),
+                            LocationId = new Guid("8cccc9cc-0663-4cfa-aa20-5a876c347260"),
+                            Password = "AQAAAAIAAYagAAAAEN2HtfRRqZLJn1JL07OV9ngM/BE7fMLymekcyqMMP2m+PpkFdxfw0aEXxejsR0Gm2A==",
                             PasswordResetRequired = true,
                             RefreshTokenExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserAccessLevel = 4,

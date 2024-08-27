@@ -15,7 +15,10 @@ namespace TRINET_CORE.Database
         WASHING_MACHINE,
         MICROWAVE,
         FRIDGE,
-        KETTLE
+        KETTLE,
+        SMART_PLUG,
+        THERMOSTAT,
+        SPEAKER
     }
 
     public enum ETrinetDeviceManufacturer
@@ -24,7 +27,10 @@ namespace TRINET_CORE.Database
         SAMSUNG,
         LG,
         WIZ,
-        NANOLEAF
+        NANOLEAF,
+        GOOGLE,
+        AMAZON,
+        SONOS
     }
 
     public enum EUserAccessLevel
@@ -55,6 +61,7 @@ namespace TRINET_CORE.Database
 
         public ICollection<Device> Devices { get; } = new List<Device>();
 
+        public string ImageUrl { get; set; } = "living_room.png"; 
     }
 
 
@@ -78,10 +85,11 @@ namespace TRINET_CORE.Database
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
 
+        public Guid LocationId { get; set; } 
         public EUserAccessLevel UserAccessLevel { get; set; } = EUserAccessLevel.NONE;
 
         public bool PasswordResetRequired { get; set; } = false;
-
+       
         public string? RefreshToken { get; set; }
 
         public DateTime RefreshTokenExpiry { get; set; }
@@ -99,6 +107,7 @@ namespace TRINET_CORE.Database
         public required string JwtToken { get; set; }
         public DateTime Expiration { get; set; }
         public required string RefreshToken { get; set; }
+        public Guid LocationId { get; set; }
 
     }
 
@@ -136,6 +145,15 @@ namespace TRINET_CORE.Database
             modelBuilder.Entity<User>()
                 .HasIndex(e => e.Username).IsUnique();
 
+            // default location
+            var defaultLocation = new Location
+            {
+                Id = Guid.NewGuid(),
+                Name = "Default",
+            };
+
+            modelBuilder.Entity<Location>()
+                .HasData(defaultLocation);
 
             // setup default admin
             modelBuilder.Entity<User>()
@@ -145,9 +163,12 @@ namespace TRINET_CORE.Database
                     Id = Guid.NewGuid(),
                     Username = "Admin",
                     Password = hasher.HashPassword(new User(), "%Administrator%"),
+                    LocationId = defaultLocation.Id,
                     UserAccessLevel = EUserAccessLevel.ADMIN,
-                    PasswordResetRequired = true
+                    PasswordResetRequired = true,
                 });
+
+
 
         }
 
