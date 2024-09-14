@@ -30,6 +30,15 @@ namespace TRINET_CORE.Routes
             return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
 
+        private enum ETokenRefreshFailureReason
+        {
+            Unauthorised,
+            Unexpired
+        }
+        private class TokenRefreshFailureReason()
+        {
+            public ETokenRefreshFailureReason Reason;
+        }
         public static WebApplication MountUserRoutes(WebApplication app, WebApplicationBuilder builder)
         {
 
@@ -61,7 +70,6 @@ namespace TRINET_CORE.Routes
 
                         db.Users.Update(record);
                         await db.SaveChangesAsync();
-
                         var token = AuthConfig.CreateJwtToken(record);
                         return Results.Ok(new LoginResponse
                         {
@@ -95,13 +103,20 @@ namespace TRINET_CORE.Routes
                 var principalName = principal.Identity.Name;
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Username == principalName);
 
-                if (user is null || user.RefreshToken != refreshAuth.RefreshToken || user.RefreshTokenExpiry > DateTime.UtcNow)
+                if (user is null || user.RefreshToken != refreshAuth.RefreshToken) 
                 {
                     return Results.Unauthorized();
                 }
 
+                // if refresh isn't due but we're authenticated then just return OK status to prevent client from assuming it needs to reauthenticate.
+                if (user.RefreshTokenExpiry > DateTime.UtcNow)
+                {
+                    return Results.Accepted();
+                }
+
                 var token = AuthConfig.CreateJwtToken(user);
 
+                Console.WriteLine("Token Refreshed.");
                 return Results.Ok(new LoginResponse
                 {
                     JwtToken = new JwtSecurityTokenHandler().WriteToken(token),

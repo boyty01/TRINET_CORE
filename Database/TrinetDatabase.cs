@@ -47,7 +47,6 @@ namespace TRINET_CORE.Database
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
-
         public ICollection<Room> Rooms { get; } = new List<Room>();
     }
 
@@ -58,24 +57,46 @@ namespace TRINET_CORE.Database
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public Guid LocationId { get; set; }
-
         public ICollection<Device> Devices { get; } = new List<Device>();
-
-        public string ImageUrl { get; set; } = "living_room.png"; 
+       public string ImageUrl { get; set; } = "living_room.png"; 
     }
 
 
     public class Device
     {
         public Guid Id { get; set; }
+        public string? MacAddress {  get; set; }
         public string? Name { get; set; }
-
         public string? InternalName { get; set; }
         public string? NetworkAddress { get; set; }
         public ETrinetDeviceType DeviceType { get; set; } = ETrinetDeviceType.UNDEFINED;
         public ETrinetDeviceManufacturer DeviceManufacturer { get; set; } = ETrinetDeviceManufacturer.NONE;
-
         public Guid RoomId { get; set; }
+    }
+
+
+    public class DeviceAuthorisationData
+    {
+        public int Id { get; set; } 
+        public Guid DeviceId { get; set; }
+        public string? AuthToken { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? TokenExpiry { get; set; }
+
+    }
+
+
+    // Pairing of device and authorisation data. Used for devices that require auth credentials for calls.
+    public class AuthorisedDevice
+    {
+        public Device Device { get; set; }
+        public DeviceAuthorisationData AuthorisationData { get; set; }
+
+        public AuthorisedDevice(Device device, DeviceAuthorisationData deviceAuthorisationData) 
+        {
+            Device = device;
+            AuthorisationData = deviceAuthorisationData;
+        }
     }
 
 
@@ -84,16 +105,11 @@ namespace TRINET_CORE.Database
         public Guid Id { get; set; }
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
-
         public Guid LocationId { get; set; } 
         public EUserAccessLevel UserAccessLevel { get; set; } = EUserAccessLevel.NONE;
-
         public bool PasswordResetRequired { get; set; } = false;
-       
         public string? RefreshToken { get; set; }
-
         public DateTime RefreshTokenExpiry { get; set; }
-
     }
 
     public class LoginUser
@@ -127,7 +143,6 @@ namespace TRINET_CORE.Database
 
     public class TrinetDatabase : DbContext
     {
-
         public TrinetDatabase(DbContextOptions options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -155,6 +170,11 @@ namespace TRINET_CORE.Database
             modelBuilder.Entity<Location>()
                 .HasData(defaultLocation);
 
+            modelBuilder.Entity<DeviceAuthorisationData>()
+                .HasOne<Device>()
+                .WithOne();
+
+
             // setup default admin
             modelBuilder.Entity<User>()
                 .HasData(
@@ -168,8 +188,6 @@ namespace TRINET_CORE.Database
                     PasswordResetRequired = true,
                 });
 
-
-
         }
 
 
@@ -180,6 +198,8 @@ namespace TRINET_CORE.Database
         public DbSet<Device> Devices { get; set; } = null!;
 
         public DbSet<User> Users { get; set; } = null!;
+
+        public DbSet<DeviceAuthorisationData> DeviceAuthorisationData { get; set;} = null!;
     }
 
 }

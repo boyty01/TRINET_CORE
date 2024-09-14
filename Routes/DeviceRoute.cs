@@ -20,9 +20,8 @@ namespace TRINET_CORE.Routes
                 }
                 catch (Exception ex)
                 {
-                    return Results.BadRequest(ex);
+                    return Results.BadRequest(ex.Message);
                 }
-
             });
 
 
@@ -55,10 +54,31 @@ namespace TRINET_CORE.Routes
                 return Results.Ok();
             });
 
+            /**
+             * add authorisation data to a device
+            */
+            app.MapPost("/devices/{device_id}/auth", async (TrinetDatabase db, Guid device_id, AuthorisedDevice device) =>
+            {
+                try
+                {
+                    if(await db.Devices.FindAsync(device_id) is null)
+                    {
+                        return Results.NotFound();
+                    }
+                        
+                    db.DeviceAuthorisationData.Add(device.AuthorisationData);
+                    await db.SaveChangesAsync();
+                    return Results.Created($"/devices/{device.Device.Id}", device.Device);
+
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+
+            });
 
             return app;
-
-
 
         }
     }

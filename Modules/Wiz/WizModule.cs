@@ -72,8 +72,9 @@ namespace TRINET_CORE.Modules.Wiz
         public async Task<string> BulbRequest(Device device, string request)
         {
             WizBulb? TargetBulb = WizBulbs.Find(u => u == device);
-            if (TargetBulb is null) return "";
+            if (TargetBulb is null) return "Bulb not found";
 
+            Console.WriteLine($"Still forwarding {request}");
             return await TargetBulb.HandleRequest(request);
         }
 

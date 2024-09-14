@@ -65,14 +65,34 @@ namespace TRINET_CORE.Routes
             }).RequireAuthorization();
 
 
+
+            /**
+             * Synchronise full location data for the given location. includes all rooms and devices. Used by client to easily
+             * synchronise an entire map of a location in a single function, typically for storing the structure for offline mode.
+             */
+            app.MapGet("/locations/{loc_id}/sync", async (TrinetDatabase db, Guid loc_id) =>
+            {
+               var data = await db.Locations
+                .Include(r => r.Rooms)
+                .ThenInclude(d => d.Devices)
+                .FirstOrDefaultAsync(l => l.Id == loc_id);
+
+                if(data is null)
+                {
+                    return Results.NotFound();
+                }
+
+                return Results.Ok(data);
+            }).RequireAuthorization();
+
             /**
              * Get a location by id and all associated dependends (single depth)
              */
             app.MapGet("/locations/{loc_id}/rooms", async (TrinetDatabase db, Guid loc_id) =>
             {
+                Console.WriteLine("Authorised");
                 return await db.Locations.Include(u => u.Rooms).Where(l => l.Id == loc_id).FirstOrDefaultAsync();
             }).RequireAuthorization();
-
 
 
             /** 
@@ -84,15 +104,13 @@ namespace TRINET_CORE.Routes
             }).RequireAuthorization();
 
 
-
             /**
-             * Get a specific room associated with the given location.
+             * Get a specific room and all of it's associated devices
              */
             app.MapGet("locations/{loc_id}/rooms/{room_id}/devices", async (TrinetDatabase db, Guid loc_id, Guid room_id) =>
             {
                 return await db.Rooms.Include(u => u.Devices).FirstOrDefaultAsync(u => u.LocationId == loc_id && u.Id == room_id);
             }).RequireAuthorization();
-
 
 
             return app;

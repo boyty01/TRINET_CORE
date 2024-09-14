@@ -10,7 +10,7 @@ namespace TRINET_CORE
     {
 
         private static ConfigurationManager _configuration = new();
-        public static int TokenExpirationMinutes { get; } = 30;
+        public static int TokenExpirationMinutes { get; } = 400;
 
 
         public static void Init(WebApplicationBuilder builder)

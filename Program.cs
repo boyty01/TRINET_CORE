@@ -9,7 +9,6 @@ using TRINET_CORE.Routes;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Authentication
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 TRINET_CORE.AuthConfig.Init(builder);
@@ -17,7 +16,6 @@ TRINET_CORE.AuthConfig.Init(builder);
 builder.Services.AddAuthorization();
 // Make sure the pw hash iteration is higher than the weirdly low default.
 builder.Services.Configure<PasswordHasherOptions>(opt => opt.IterationCount = 600_000);
-
 
 // data store
 var connectionString = builder.Configuration.GetConnectionString("TrinetDatabase") ?? "Data Source=TrinetDatabase.db";
@@ -56,9 +54,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 var app = builder.Build();
-
 
 // enable swagger in development
 if (app.Environment.IsDevelopment())
@@ -70,15 +66,20 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-
 // mount routes
 LocationRoute.MountLocationRoutes(app);
 RoomRoute.MountRoomRoutes(app);
 DeviceRoute.MountDeviceRoutes(app);
 UserRoute.MountUserRoutes(app, builder);
+WizRoute.MountWizRoutes(app, builder);
+
+
+app.MapGet("/status", () =>
+{
+    return Results.Ok();
+});
 
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.Run();
-

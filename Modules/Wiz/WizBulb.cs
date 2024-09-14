@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using TRINET_CORE.Database;
 
@@ -20,6 +22,7 @@ namespace TRINET_CORE.Modules.Wiz
 
 
     // set pilot params
+
     public class SetPilotParams : WizBulbRequestParamsBase
     {
         public bool? State { get; set; }
@@ -46,6 +49,11 @@ namespace TRINET_CORE.Modules.Wiz
     {
         public EWizBulbRequestMethod Method { get; set; }
         public string Request { get; set; } = null!;
+
+        public override string ToString()
+        {
+            return $"{Method} {Request} ";
+        }
     }
 
 
@@ -148,12 +156,17 @@ namespace TRINET_CORE.Modules.Wiz
         public async Task<string> HandleRequest(string request)
         {
 
+            return await SendRaw(request);
+
+            Console.WriteLine("Handling request");
+            Console.WriteLine($"Deserialising {request}");
             var obj = JsonSerializer.Deserialize<WizRequestBase>(request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+            Console.WriteLine(obj?.ToString());
             if (obj is null) return "{\"error\":\"Bad request. Bad Payload.\"}";
-
+           
             // Get state
-            if(obj.Method == EWizBulbRequestMethod.getPilot)
+            if (obj.Method == EWizBulbRequestMethod.getPilot)
             {
                 return await GetState();
             }
@@ -161,8 +174,10 @@ namespace TRINET_CORE.Modules.Wiz
             // send request command. SetPilot and SetState 
             if (obj.Method == EWizBulbRequestMethod.setPilot || obj.Method == EWizBulbRequestMethod.setState)
             {
+                Console.WriteLine(obj.Request);
                 var JsonRequest = JsonSerializer.Deserialize<SetPilotRequest>(obj.Request, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-                if(JsonRequest is null) return "{\"error\":\"Bad request. Bad Payload. \"}";
+                Console.WriteLine("set pilot command");
+                if (JsonRequest is null) return "{\"error\":\"Bad request. Bad Payload. \"}";
 
                 return await SendRequest(JsonRequest);
             }
@@ -171,6 +186,22 @@ namespace TRINET_CORE.Modules.Wiz
 
         }
 
+        private async Task<string> SendRaw(string request)
+        {
+            Console.WriteLine($"Sending {request}");
+            UdpClient client = new UdpClient();
+            byte[] cBytes = System.Text.Encoding.UTF8.GetBytes(request);
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse(NetworkAddress), Port);
+            await client.SendAsync(cBytes, ep);
+            Console.WriteLine("Sent");
+            // get response as string
+            var buffer = await client.ReceiveAsync();
+            Console.WriteLine("Received response");
+            var asString = System.Text.Encoding.UTF8.GetString(buffer.Buffer, 0, buffer.Buffer.Length);
+            Console.WriteLine(asString);
+            client.Close();
+            return asString;
+        }
 
         /** 
          * send a getPilot command.
