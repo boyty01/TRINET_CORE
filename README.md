@@ -22,7 +22,7 @@ Core, at it's - well, core - is the home server for the trinet system.  It runs 
 As I add extra tablets to rooms throughout my home, it makes little sense to have to setup all of my devices onto each one. Core acts as the repository for locations, rooms and devices added by all of my controllers, so that they can sync their data from a central database. 
 
 ### Reduce network congestion 
-If all trinet clients were always sending requests directly to devices on the network, there's potential for chaos and race conditions, having Core be a central hub for relaying requests from clients helps streamline the control process to a more predictable and managagable flow.
+If all trinet clients were always sending requests directly to devices on the network, there's potential for chaos and race conditions, having Core be a central hub for relaying requests from clients helps streamline the control process to a more predictable and managable flow.
 
 ### Cloud access
 Eventually, Core will be a node for WAN connections to hook into the home devices. (As it stands, Core runs purely on LAN, so you must be on the same network to connect.) It will also serve as the relay to any manufacturer web API's as and where needed.
