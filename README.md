@@ -16,7 +16,7 @@ It originally came about from frustrations where controlling our smart lights wa
 
 
 ## What is Core
-Core, at it's - well, core - is the home server for the trinet system.  It runs on ASP.NET CORE, using Entity Framework an Minimal API.
+Core, at it's - well, core - is the home server for the trinet system.  It runs on ASP.NET CORE, using Entity Framework and Minimal API.
 
 ### Central database
 As I add extra tablets to rooms throughout my home, it makes little sense to have to setup all of my devices onto each one. Core acts as the repository for locations, rooms and devices added by all of my controllers, so that they can sync their data from a central database. 
