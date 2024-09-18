@@ -15,7 +15,7 @@ The concept of TriNet, is to amalgamate all possible communication routes with m
 It originally came about from frustrations where controlling our smart lights was a chore. Sometimes I wouldn't have my phone, or even when I did, I had to sift through my apps to find the correct brand app, boot it up and then adjust the lighting. This has never struck me as a convient replacement to a light switch.  The features of smart bulbs are great on the surface, but I just didn't have a quick way to control them.  In an attempt to resolve this, I mounted a 7" tablet next to the light switch in our living room that served as a permanent quick access to our light controllers.  This still left the problem of sifting through different apps, which is where Trinet came in.
 
 
-##What is Core
+## What is Core
 Core, at it's - well, core - is the home server for the trinet system.  It runs on ASP.NET CORE, using Entity Framework an Minimal API.
 
 ### Central database
